@@ -2,6 +2,9 @@
 
 # インストール ＆ 起動
 
+何はともあれインストール ＆ 起動です。  
+Node.js バージョン10.13以降が必要ですので、ご注意ください。
+
 ```console
 $ npx create-next-app@latest nextjs-blog --use-npm --example "https://github.com/vercel/next-learn/tree/master/basics/learn-starter"
 
@@ -10,9 +13,13 @@ $ cd nextjs-blog
 $ npm run dev
 ```
 
+上記を実行したら、下記 URL にアクセスしてみましょう。
+
 [http://localhost:3000](http://localhost:3000)
 
 # Fast Refresh を感じる
+
+ファイルに変更を加えると、Next.js は自動的に変更をほぼ瞬時に適用します。体感してみましょう。
 
 ```javascript
 // pages/index.js
@@ -30,6 +37,10 @@ $ npm run dev
 
 # ファイルシステムに沿ったルーター を感じる
 
+Next.js にはファイルシステムベースのルーターがあります。  
+ファイルがpagesディレクトリに追加されると、ルートとして自動的に利用可能になります。  
+新しいページを追加してみましょう。
+
 ```javascript
 // pages/posts/first-post.js
 
@@ -38,11 +49,13 @@ export default function FirstPost() {
 }
 ```
 
+上記を実行したら、下記 URL にアクセスしてみましょう。
+
 [http://localhost:3000/posts/first-post](http://localhost:3000/posts/first-post)
 
 # Link によるページ遷移を感じる
 
-next/Link は、同じ Next.js アプリ内の 2 つのページ間のクライアント側のナビゲーションを有効にします。
+next/Link は、同じ Next.js アプリ内の 2 つのページ間のクライアント側のナビゲーションを有効にします。実装してみましょう。
 
 ```javascript
 // pages/index.js
@@ -82,7 +95,7 @@ export default function FirstPost() {
 
 # Head を感じる
 
-メタデータの変更には next/head を使用します。
+メタデータの変更には next/head を使用します。実装してみましょう。
 
 ```javascript
 // pages/posts/first-post.js
@@ -107,7 +120,7 @@ export default function FirstPost() {
 
 # Document を感じる
 
-Document を変更する場合は `pages/_document.js` を作成する必要があります。
+Document を変更する場合は `pages/_document.js` を作成する必要があります。実装してみましょう。
 
 ```javascript
 // pages/_document.js
@@ -220,6 +233,8 @@ Each generated HTML is associated with minimal JavaScript code necessary for tha
 `ユーザーのリクエストに先立って、このページを事前にレンダリングできますか?` と自問する必要があります。答えが「はい」の場合は SG を選択する必要があります。
 
 # SG を感じる
+
+実際に SG を実装してみましょう。例としてブログを作成してみましょう。
 
 ```console
 $ npm install --save gray-matter
@@ -349,6 +364,8 @@ getStaticProps() → getServerSideProps()
 ```
 
 # Dynamic Routes を感じる
+
+ファイルシステムベースのルーティングで動的な URL を構築する場合 Dynamic Routes を使用します。上記のブログの記事ページを実装してみましょう。
 
 ```console
 $ npm install --save remark remark-html
