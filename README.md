@@ -350,16 +350,147 @@ getStaticProps() → getServerSideProps()
 
 # Dynamic Routes を感じる
 
-``` json
-paths: [
-  { params: { id: 'a' } },
-  { params: { id: 'b' } }
-],
+```console
+$ npm install --save remark remark-html
 ```
 
-# Image を感じる
+```javascript
+// lib/posts.js
 
-next/image はあなたの代わりに画像のサイズ変更と最適化をしてくれます。
+import { remark } from 'remark';
+import html from 'remark-html';
+import fs from 'fs'
+import path from 'path'
+import matter from 'gray-matter'
 
-1. [https://github.com/vercel/next-learn/blob/master/basics/basics-final/public/images/profile.jpg](https://github.com/vercel/next-learn/blob/master/basics/basics-final/public/images/profile.jpg) をダウンロードする
-1. `public/images` ディレクトリを作成して上記画像を格納する。
+const postsDirectory = path.join(process.cwd(), 'posts')
+
+export function getSortedPostsData() {
+  // Get file names under /posts
+  const fileNames = fs.readdirSync(postsDirectory)
+  const allPostsData = fileNames.map(fileName => {
+    // Remove ".md" from file name to get id
+    const id = fileName.replace(/\.md$/, '')
+
+    // Read markdown file as string
+    const fullPath = path.join(postsDirectory, fileName)
+    const fileContents = fs.readFileSync(fullPath, 'utf8')
+
+    // Use gray-matter to parse the post metadata section
+    const matterResult = matter(fileContents)
+
+    // Combine the data with the id
+    return {
+      id,
+      ...matterResult.data
+    }
+  })
+  // Sort posts by date
+  return allPostsData.sort((a, b) => {
+    if (a.date < b.date) {
+      return 1
+    } else {
+      return -1
+    }
+  })
+}
+
+export function getAllPostIds() {
+  const fileNames = fs.readdirSync(postsDirectory)
+  return fileNames.map(fileName => {
+    return {
+      params: {
+        id: fileName.replace(/\.md$/, '')
+      }
+    }
+  })
+}
+
+export async function getPostData(id) {
+  const fullPath = path.join(postsDirectory, `${id}.md`);
+  const fileContents = fs.readFileSync(fullPath, 'utf8');
+
+  // Use gray-matter to parse the post metadata section
+  const matterResult = matter(fileContents);
+
+  // Use remark to convert markdown into HTML string
+  const processedContent = await remark()
+    .use(html)
+    .process(matterResult.content);
+  const contentHtml = processedContent.toString();
+
+  // Combine the data with the id and contentHtml
+  return {
+    id,
+    contentHtml,
+    ...matterResult.data,
+  };
+}
+```
+
+``` javascript
+// pages/posts/[id].js
+
+import { getAllPostIds, getPostData } from '../../lib/posts'
+
+export async function getStaticPaths() {
+  const paths = getAllPostIds()
+  return {
+    paths,
+    fallback: false
+  }
+}
+
+export async function getStaticProps({ params }) {
+  const postData = await getPostData(params.id)
+  return {
+    props: {
+      postData
+    }
+  }
+}
+
+export default function Post({ postData }) {
+  return (
+    <>
+      {postData.title}
+      <br />
+      {postData.id}
+      <br />
+      {postData.date}
+      <br />
+      <div dangerouslySetInnerHTML={{ __html: postData.contentHtml }} />
+    </>
+  )
+}
+```
+
+# Dynamic Routes を感じる Step 2
+
+```javascript
+// pages/index.js
+
+<ul>
+  {allPostsData.map(({ id, date, title }) => (
+    <li key={id}>
+      <Link href={`/posts/${id}`}>{title}</Link>
+      <br />
+      {date}
+    </li>
+  ))}
+</ul>
+```
+
+```javascript
+// pages/posts/[id].js
+
+import Head from 'next/head';
+```
+
+```javascript
+// pages/posts/[id].js
+
+<Head>
+  <title>{postData.title}</title>
+</Head>
+```
